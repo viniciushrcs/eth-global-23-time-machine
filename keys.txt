@@ -1,0 +1,5 @@
+Client ID
+4a9e75fef5f8da102a8c4fab6d9ff2bc
+
+Secret Key
+ZA55raiIT_vu0PcsN_toHBENspOT8g4RJAxWFbiTjBPZlyqn4tplzUBkt7Re58jCdIonsxLtjgD7pXUd0Y7d6A
