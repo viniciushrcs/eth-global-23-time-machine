@@ -1,14 +1,15 @@
 # Compiler files
-blockchain/cache/
-blockchain/out/
+savings-capsule/cache/
+savings-capsule/out/
+savings-capsule/node_modules/
 
 # Ignores development broadcast logs
-blockchain/!/broadcast
-blockchain//broadcast/*/31337/
-blockchain//broadcast/**/dry-run/
+savings-capsule/!/broadcast
+savings-capsule//broadcast/*/31337/
+savings-capsule//broadcast/**/dry-run/
 
 # Docs
-blockchain/docs/
+savings-capsule/docs/
 
 
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.

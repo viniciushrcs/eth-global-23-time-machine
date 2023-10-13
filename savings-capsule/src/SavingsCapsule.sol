@@ -17,7 +17,8 @@ contract SavingsCapsule {
         uint256 amountGoal;
         uint256 currentAmount;
         bool isOpened; // Status da cápsula (aberta/fechada)
-        Gift[] gifts; // Lista de presentes na cápsula
+        mapping(uint256 => Gift) gifts;
+        uint256 giftsCount;
     }
 
     mapping(uint256 => Capsule) public capsules;
@@ -31,12 +32,7 @@ contract SavingsCapsule {
         uint256 unlockTime,
         uint256 amountGoal
     );
-    event GiftAdded(
-        uint256 capsuleId,
-        address gifter,
-        string videoIPFSHash,
-        uint256 value
-    );
+    event GiftAdded(uint256 capsuleId, uint256 value);
     event CapsuleOpened(uint256 capsuleId);
 
     function createCapsule(uint256 _unlockTime, uint256 _amountGoal) public {
@@ -50,21 +46,25 @@ contract SavingsCapsule {
 
         address recipientAddress = address(newRecipient);
 
-        capsules[capsuleCounter] = Capsule({
-            id: capsuleCounter,
-            capsuleCreator: capsuleCreator,
-            recipient: recipientAddress,
-            unlockTime: _unlockTime,
-            amountGoal: _amountGoal,
-            currentAmount: 0,
-            isOpened: false,
-            gifts: new Gift[](0)
-        });
+        capsules[capsuleCounter].id = capsuleCounter;
+        capsules[capsuleCounter].capsuleCreator = capsuleCreator;
+        capsules[capsuleCounter].recipient = recipientAddress;
+        capsules[capsuleCounter].unlockTime = _unlockTime;
+        capsules[capsuleCounter].amountGoal = _amountGoal;
+        capsules[capsuleCounter].currentAmount = 0;
+        capsules[capsuleCounter].isOpened = false;
+        capsules[capsuleCounter].giftsCount = 0;
+        emit CapsuleCreated(
+            capsuleCounter,
+            capsuleCreator,
+            recipientAddress,
+            _unlockTime,
+            _amountGoal
+        );
     }
 
     function addGift(
         uint256 _capsuleId,
-        string memory _name,
         string memory _videoIPFSHash
     ) public payable {
         require(
@@ -83,9 +83,12 @@ contract SavingsCapsule {
             videoIPFSHash: _videoIPFSHash
         });
 
-        capsules[_capsuleId].gifts.push(newGift);
+        capsules[_capsuleId].gifts[capsules[_capsuleId].giftsCount] = newGift;
+        capsules[_capsuleId].giftsCount++;
         capsules[_capsuleId].currentAmount += msg.value;
         payable(capsules[_capsuleId].recipient).transfer(msg.value);
+
+        emit GiftAdded(_capsuleId, msg.value);
     }
 
     function openCapsule(uint256 _capsuleId) public {
@@ -112,5 +115,22 @@ contract SavingsCapsule {
         payable(capsules[_capsuleId].capsuleCreator).transfer(
             capsules[_capsuleId].currentAmount
         );
+        emit CapsuleOpened(_capsuleId);
+    }
+
+    function getGiftsCount(uint256 _capsuleId) public view returns (uint256) {
+        return capsules[_capsuleId].giftsCount;
+    }
+
+    function getGift(
+        uint256 _capsuleId,
+        uint256 giftIndex
+    ) public view returns (address gifter, string memory videoIPFSHash) {
+        require(
+            giftIndex < capsules[_capsuleId].giftsCount,
+            "Gift index out of bounds"
+        );
+        Gift memory gift = capsules[_capsuleId].gifts[giftIndex];
+        return (gift.gifter, gift.videoIPFSHash);
     }
 }

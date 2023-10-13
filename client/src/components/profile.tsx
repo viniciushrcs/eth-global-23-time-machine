@@ -9,15 +9,19 @@ import {
 } from './ui/card';
 
 export default function Profile() {
-  const contractAddress = '';
+  const contractAddress = '0x5F99C695602e475CE060eF9cA3AEB3c44260218B';
   const { contract } = useContract(contractAddress);
-  const { mutateAsync, isLoading, error } = useContractWrite(
+  const { mutateAsync, isLoading, error, data } = useContractWrite(
     contract,
     'createCapsule',
   );
 
   if (error) {
     console.log(error);
+  }
+
+  if (data) {
+    console.log(data);
   }
 
   return (
@@ -33,7 +37,9 @@ export default function Profile() {
           <Web3Button
             isDisabled={isLoading}
             contractAddress={contractAddress}
-            action={() => mutateAsync({ args: ['My Name'] })}
+            action={() =>
+              mutateAsync({ args: [10, 10] }).then((data) => console.log(data))
+            }
           >
             Create New Capsule
           </Web3Button>
