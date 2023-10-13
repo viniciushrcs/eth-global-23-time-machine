@@ -1,4 +1,4 @@
-import { use, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { connectSmartWallet } from '../../src/lib/wallet/wallet';
 import { Connected } from './connected';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ import {
   CardHeader,
   CardTitle,
 } from './ui/card';
+import { Icons } from './ui/icons';
 // import { Icons } from './ui/icons';
 
 const loginSchema = z.object({
@@ -33,10 +34,15 @@ type LoginSchema = z.infer<typeof loginSchema>;
 export const Login = () => {
   const [isLoading, setIsloading] = useState(false);
 
+  let defaultEmail = '';
+  if (typeof window !== 'undefined') {
+    defaultEmail = localStorage.getItem('email') ?? '';
+  }
+
   const form = useForm<LoginSchema>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: '',
+      email: defaultEmail,
     },
   });
 
@@ -83,22 +89,6 @@ export const Login = () => {
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <CardContent className="grid gap-4">
-              {/* <div className="grid grid-cols-2 gap-6">
-                <Button variant="outline">
-                  <Icons.google className="mr-2 h-4 w-4" />
-                  Google
-                </Button>
-              </div>
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div> 
-              </div> */}
               <div className="grid gap-2">
                 <FormField
                   control={form.control}
@@ -107,7 +97,16 @@ export const Login = () => {
                     <FormItem>
                       <FormLabel>E-mail</FormLabel>
                       <FormControl>
-                        <Input placeholder="e-mail" {...field} />
+                        <Input
+                          id="email"
+                          placeholder="name@example.com"
+                          type="email"
+                          autoCapitalize="none"
+                          autoComplete="email"
+                          autoCorrect="off"
+                          disabled={isLoading}
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -116,8 +115,15 @@ export const Login = () => {
               </div>
             </CardContent>
             <CardFooter>
-              <Button disabled={isLoading} type="submit" className="w-full">
-                Create account
+              <Button disabled={isLoading} className="w-full">
+                {isLoading ? (
+                  <>
+                    <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+                    Found credentials! Logging you in...
+                  </>
+                ) : (
+                  <p>Sign In with Email</p>
+                )}
               </Button>
             </CardFooter>
           </form>
