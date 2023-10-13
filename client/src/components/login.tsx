@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { connectSmartWallet } from '../../src/lib/wallet/wallet';
-import { Connected } from './connected';
+import { ConnectedComponents } from './connected';
 import { Input } from '@/components/ui/input';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
@@ -75,7 +75,7 @@ export const Login = () => {
 
   return signer ? (
     <div>
-      <Connected signer={signer} />
+      <ConnectedComponents signer={signer} />
     </div>
   ) : (
     <div className="flex justify-center">
@@ -119,7 +119,7 @@ export const Login = () => {
                 {isLoading ? (
                   <>
                     <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-                    Found credentials! Logging you in...
+                    Logging you in...
                   </>
                 ) : (
                   <p>Sign In with Email</p>
