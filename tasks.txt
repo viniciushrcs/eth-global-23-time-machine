@@ -1,0 +1,30 @@
+1.  Cadastro do Responsável
+1.1 Tela de Cadastro
+2. Tela de Login 
+3. Tela de Cadastro da Criança
+  3.1. Firebase para salvar os dados da criança 
+  3.2. Id do usuário é o mesmo no Firebase e Blockchain
+4. Criar Saving Goal para a Criança
+  4.1 Firebase para salvar o Goal
+  4.2. Blockchain só compartilha o Id do Goal
+5. Tela de Contribuição
+  5.1 -> Mensagem, Vídeo + Dinheiro
+  5.2 -> Os dados não podem ser vistos (encriptados) até tudo ser liberado
+6. Quando o Saving Goal se encerrar, isso tudo fica preso até a data pré-estabelecida ou um outro evento pré-estabelecido
+  6.1 Verifica através de uma chamada de API com o Chainlink Functions
+  6.2. Api nativa do App que pode desenvolver divesos locks diferentes para o dinheiro e somente a api pode liberar o dinheiro (é uma plataforma)
+  6.3. Criar um mock da Api
+
+Api
+- CRUD Responsável
+- CRUD Criança
+- CRUD Saving Goal
+  - Upload dos metadados no IPFS (Verificar FileCoin)
+- Operação de check se o goal já está liberado e retorno para Chainlink Functions
+
+
+----
+
+Como se fosse uma previdência para a Criança
+Pais querem ajudar, mas sentem que presentes em dinheiro não tem afeto e enchem de brinquedos e outras coisas
+Avós ou outros parentes que querem eternizar aquela lembrança, não importa o quanto tempo passe.

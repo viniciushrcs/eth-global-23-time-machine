@@ -1,3 +1,6 @@
 [submodule "blockchain/lib/forge-std"]
 	path = blockchain/lib/forge-std
 	url = https://github.com/foundry-rs/forge-std
+[submodule "savings-capsule/lib/forge-std"]
+	path = savings-capsule/lib/forge-std
+	url = https://github.com/foundry-rs/forge-std.git
