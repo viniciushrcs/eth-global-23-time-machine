@@ -39,6 +39,7 @@ blockchain/docs/
 
 # local env files
 /client/.env.local
+/client/.firebase
 /client/.env
 */.env
 
