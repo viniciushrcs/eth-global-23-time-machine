@@ -31,19 +31,23 @@ export async function getCapsulesByChild(childId: string) {
   return querySnapshot.data();
 }
 
+export async function getCapsulesByParentAddress(parentAddress: string) {
+  const q = query(capsuleRef, where('creatorAddress', '==', parentAddress));
+  const querySnapshot = (await getDocs(q)).docs;
+  return querySnapshot.map((doc) => doc.data());
+}
+
 export async function createChild(childData: any) {
   try {
-    const newData = await setDoc(doc(childsRef), childData);
-    console.log(newData);
+    await setDoc(doc(childsRef), childData);
   } catch (error) {
-    console.error('Error adding document with ID: ', error);
+    console.error('Error adding document', error);
   }
 }
 
 export async function createParent(parentData: any) {
   try {
-    const newData = await setDoc(doc(parentsRef), parentData);
-    console.log(newData);
+    await setDoc(doc(parentsRef), parentData);
   } catch (error) {
     console.error('Error adding document with ID: ', error);
   }
@@ -51,8 +55,7 @@ export async function createParent(parentData: any) {
 
 export async function createCapsule(capsuleData: any) {
   try {
-    const newData = await setDoc(doc(capsuleData), capsuleData);
-    console.log(newData);
+    await setDoc(doc(capsuleRef), capsuleData);
   } catch (error) {
     console.error('Error adding document with ID: ', error);
   }

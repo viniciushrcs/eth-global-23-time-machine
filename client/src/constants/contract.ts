@@ -1,0 +1,4 @@
+export const SAVING_CAPSULE_ADDRESS =
+  process.env.NEXT_PUBLIC_SAVING_CAPSULE_ADDRESS ?? '';
+export const NFT_STORAGE_API_KEY =
+  process.env.NEXT_PUBLIC_NFT_STORAGE_API_KEY ?? '';

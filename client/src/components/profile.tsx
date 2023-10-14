@@ -1,5 +1,5 @@
 import { Web3Button, useContract, useContractWrite } from '@thirdweb-dev/react';
-import CapsuleCard from './capsule';
+import CapsuleCard from './savings/capsule';
 import {
   CardTitle,
   Card,

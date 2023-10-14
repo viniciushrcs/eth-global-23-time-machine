@@ -1,14 +1,14 @@
+import { SAVING_CAPSULE_ADDRESS } from '@/constants/contract';
 import { Mumbai } from '@thirdweb-dev/chains';
 import { Signer, ethers } from 'ethers';
-
-const savingsCapsuleABI = [{}];
+import { abi as savingsCapsuleABI } from '@/constants/SavingsCapsule.json';
 
 export function getProvider() {
   return new ethers.providers.JsonRpcProvider(Mumbai.rpc[0]);
 }
 
 export function getSavingsCapsuleContract(signer: Signer) {
-  const contractAddress = process.env.SAVING_CAPSULE_ADDRESS ?? '';
+  const contractAddress = SAVING_CAPSULE_ADDRESS;
   return new ethers.Contract(contractAddress, savingsCapsuleABI, signer);
 }
 
@@ -19,7 +19,7 @@ export async function createCapsule(
 ) {
   const contract = getSavingsCapsuleContract(signer);
   const tx = await contract.createCapsule(_unlockTime, _amountGoal);
-  const receipt = tx.wait();
+  const receipt = await tx.wait();
   console.log(receipt);
   return receipt;
 }
