@@ -11,8 +11,12 @@
     "test": "jest"
   },
   "dependencies": {
+    "@heroicons/react": "^2.0.18",
     "@hookform/resolvers": "^3.2.0",
+    "@radix-ui/react-dialog": "^1.0.5",
     "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-navigation-menu": "^1.1.4",
+    "@radix-ui/react-separator": "^1.0.3",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-tabs": "^1.0.4",
     "@sls-next/serverless-component": "^3.7.0",
@@ -25,10 +29,12 @@
     "clsx": "^2.0.0",
     "ethers": "5",
     "firebase": "^10.5.0",
-    "lucide-react": "^0.265.0",
+    "lucide-react": "0.263.1",
     "next": "13.4.13",
+    "nft.storage": "^7.1.1",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-dropzone": "^14.2.3",
     "react-hook-form": "^7.45.4",
     "react-query": "^3.39.3",
     "zod": "^3.21.4"
