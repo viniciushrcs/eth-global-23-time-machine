@@ -1,6 +1,9 @@
 import { Dispatch, useEffect, useState } from 'react';
 import { useAddress, useSigner } from '@thirdweb-dev/react';
-import { createCapsule as createBlockchainCapsule } from '@/lib/ethers/ethers';
+import {
+  createCapsule as createBlockchainCapsule,
+  giveGift,
+} from '@/lib/ethers/ethers';
 import { createCapsule as createFirebaseCapsule } from '@/lib/firestore/queries';
 import ConnectWalltetError from '@/components/error/connect-wallet';
 import { Icons } from '@/components/ui/icons';
@@ -71,12 +74,11 @@ const VideoDropzone = ({
   );
 };
 
-const SavingsPage = () => {
+const GiftsPage = () => {
   const address = useAddress();
-  const [unlockTime, setUnlockTime] = useState(0);
-  const [amountGoal, setAmountGoal] = useState(0);
+  const [amount, setAmount] = useState(0);
   const [capsuleName, setCapsuleName] = useState('');
-  const [capsuleDescription, setCapsuleDescription] = useState('');
+  const [capsuleId, setCapsuleId] = useState(0);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const signer = useSigner();
@@ -85,23 +87,14 @@ const SavingsPage = () => {
     if (signer && uploadedVideo) {
       try {
         setIsLoading(true);
-        await storeVideoOnIpfs({
+        const videoIpfsHash = await storeVideoOnIpfs({
           name: capsuleName,
-          description: capsuleDescription,
+          description: capsuleName,
           file: uploadedVideo,
         });
-        await createBlockchainCapsule(signer, unlockTime, amountGoal);
-
-        const capsuleData = {
-          unlockTime,
-          amountGoal,
-          creatorAddress: address,
-          name: capsuleName,
-          description: capsuleDescription,
-        };
-        await createFirebaseCapsule(capsuleData);
+        await giveGift(signer, capsuleId, videoIpfsHash);
       } catch (e) {
-        console.log('Error creating capsule', e);
+        console.log('Error adding gift', e);
       } finally {
         setIsLoading(false);
       }
@@ -117,7 +110,7 @@ const SavingsPage = () => {
   return (
     <div className="w-full mt-12 p-4">
       <h1 className="text-4xl font-semibold text-center">
-        Create a new Saving Capsule
+        Contribute to the future of a loved one
       </h1>
       <div className="flex flex-col items-center">
         <form onSubmit={handleSubmit} className="w-full max-w-md mt-8">
@@ -140,49 +133,17 @@ const SavingsPage = () => {
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="capsuleDescription"
-            >
-              Description
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="capsuleDescription"
-              type="text"
-              placeholder="Enter capsule description"
-              value={capsuleDescription}
-              onChange={(e) => setCapsuleDescription(e.target.value)}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="unlockTime"
-            >
-              Unlock Time
-            </label>
-            <input
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="unlockTime"
-              type="number"
-              placeholder="Enter unlock time"
-              value={unlockTime}
-              onChange={(e) => setUnlockTime(Number(e.target.value))}
-            />
-          </div>
-          <div className="mb-4">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="amountGoal"
             >
-              Amount Goal
+              How much do you want to give?
             </label>
             <input
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="amountGoal"
               type="number"
               placeholder="Enter amount goal"
-              value={amountGoal}
-              onChange={(e) => setAmountGoal(Number(e.target.value))}
+              value={amount}
+              onChange={(e) => setAmount(Number(e.target.value))}
             />
           </div>
           <div className="mb-6">
@@ -219,4 +180,4 @@ const SavingsPage = () => {
   );
 };
 
-export default SavingsPage;
+export default GiftsPage;

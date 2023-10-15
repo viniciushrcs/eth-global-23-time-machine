@@ -19,5 +19,5 @@ export async function storeVideoOnIpfs({
 
   console.log('NFT data stored!');
   console.log('Metadata URI: ', metadata.url);
-  return metadata;
+  return metadata.data.image.hash;
 }

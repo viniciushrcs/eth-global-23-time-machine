@@ -1,75 +1,10 @@
-import { Dispatch, useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useAddress, useSigner } from '@thirdweb-dev/react';
 import { createCapsule as createBlockchainCapsule } from '@/lib/ethers/ethers';
 import { createCapsule as createFirebaseCapsule } from '@/lib/firestore/queries';
 import ConnectWalltetError from '@/components/error/connect-wallet';
 import { Icons } from '@/components/ui/icons';
-import { useDropzone } from 'react-dropzone';
-import { Video } from 'lucide-react';
-import { storeVideoOnIpfs } from '@/lib/ipfs/ipfs';
-
-const VideoDropzone = ({
-  setUploadedVideo,
-}: {
-  setUploadedVideo: Dispatch<File | null>;
-}) => {
-  const maxSize = 10 * 1024 * 1024;
-
-  const { acceptedFiles, getRootProps, getInputProps } = useDropzone({
-    accept: { 'video/*': ['.mp4'] },
-    maxFiles: 1,
-    onDrop: (_, fileRejections) => {
-      fileRejections.forEach((file) => {
-        if (file.file.size > maxSize) {
-          console.error('File too large');
-        }
-      });
-    },
-  });
-
-  const uploadedVideo = acceptedFiles[0];
-
-  useEffect(() => {
-    if (uploadedVideo) {
-      setUploadedVideo(uploadedVideo);
-    }
-  }, [uploadedVideo, setUploadedVideo]);
-
-  return (
-    <div
-      {...getRootProps({
-        className:
-          'dropzone flex flex-col justify-center items-center h-36 w-2/3 border-dashed border-gray-700 border-2 md:border-4 rounded-md p-2',
-      })}
-    >
-      <input {...getInputProps()} />
-
-      {uploadedVideo ? (
-        <>
-          <img
-            src={URL.createObjectURL(uploadedVideo)}
-            alt="Video preview"
-            className="object-cover"
-            width={50}
-            height={50}
-          />
-          <p>{uploadedVideo.name}</p>
-        </>
-      ) : (
-        <>
-          <Video width={48} height={48} className="text-gray-400" />
-          <p className="text-sm text-center font-medium text-gray-300">
-            <span className="text-primary text-sm font-medium">
-              Send your video
-            </span>{' '}
-            or drop it here
-          </p>
-          <p className="text-xs text-gray-400">MP4 de até 10MB</p>
-        </>
-      )}
-    </div>
-  );
-};
+import { BigNumber } from 'ethers';
 
 const SavingsPage = () => {
   const address = useAddress();
@@ -77,22 +12,24 @@ const SavingsPage = () => {
   const [amountGoal, setAmountGoal] = useState(0);
   const [capsuleName, setCapsuleName] = useState('');
   const [capsuleDescription, setCapsuleDescription] = useState('');
-  const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const signer = useSigner();
 
   const handleSubmit = async () => {
-    if (signer && uploadedVideo) {
+    if (signer) {
       try {
         setIsLoading(true);
-        await storeVideoOnIpfs({
-          name: capsuleName,
-          description: capsuleDescription,
-          file: uploadedVideo,
-        });
-        await createBlockchainCapsule(signer, unlockTime, amountGoal);
-
+        const receipt = await createBlockchainCapsule(
+          signer,
+          unlockTime,
+          amountGoal,
+        );
+        console.log(receipt);
+        const capsuleId = BigNumber.from(
+          receipt.events[1].args.capsuleId._hex,
+        ).toNumber();
         const capsuleData = {
+          blockchainId: capsuleId,
           unlockTime,
           amountGoal,
           creatorAddress: address,
@@ -184,15 +121,6 @@ const SavingsPage = () => {
               value={amountGoal}
               onChange={(e) => setAmountGoal(Number(e.target.value))}
             />
-          </div>
-          <div className="mb-6">
-            <label
-              className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="amountGoal"
-            >
-              Eternize this gift with a video
-            </label>
-            <VideoDropzone setUploadedVideo={setUploadedVideo} />
           </div>
           <div className="flex items-center justify-between">
             <button

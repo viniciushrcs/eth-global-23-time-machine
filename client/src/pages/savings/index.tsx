@@ -17,7 +17,7 @@ const MySavings = () => {
       };
       fetchCapsules();
     }
-  }, [address, capsules]);
+  }, [address]);
 
   return (
     <div className="w-full mt-12 p-4">
@@ -26,10 +26,9 @@ const MySavings = () => {
         {capsules.map((capsule) => (
           <CapsuleCard
             key={capsule.id}
+            capsuleId={capsule.blockchainId}
             name={capsule.name}
             description={capsule.description}
-            childName={capsule.childName}
-            currentAmount={capsule.currentAmount}
             targetAmount={capsule.targetAmount}
           />
         ))}
