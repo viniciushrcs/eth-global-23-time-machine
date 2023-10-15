@@ -23,3 +23,24 @@ export async function createCapsule(
   console.log(receipt);
   return receipt;
 }
+
+export async function giveGift(
+  signer: Signer,
+  _capsuleId: number,
+  _videoIPFSHash: string,
+) {
+  const contract = getSavingsCapsuleContract(signer);
+  const tx = await contract.addGift(_capsuleId, _videoIPFSHash);
+  const receipt = await tx.wait();
+  console.log(receipt);
+  return receipt;
+}
+
+export async function openCapsule(signer: Signer, _capsuleId: number) {
+  const contract = getSavingsCapsuleContract(signer);
+  const tx = await contract.openCapsule(_capsuleId);
+  console.log(tx);
+  const receipt = await tx.wait();
+  console.log(receipt);
+  return receipt;
+}
