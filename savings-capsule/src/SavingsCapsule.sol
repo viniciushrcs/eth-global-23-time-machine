@@ -1,22 +1,22 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-import "./CapsuleRecipient.sol";
+import "./CapsuleVault.sol";
 
 contract SavingsCapsule {
     struct Gift {
-        address gifter; // Endereço do doador
-        string videoIPFSHash; // Vídeo do presente
+        address gifter;
+        string videoIPFSHash;
     }
 
     struct Capsule {
-        uint256 id; // ID da cápsula
-        address capsuleCreator; // Dono da cápsula
-        address recipient; // id do Destinatário da cápsula (TimeLockedWallet)
-        uint256 unlockTime; // Tempo para desbloquear a cápsula
+        uint256 id;
+        address capsuleCreator;
+        address capsuleVault;
+        uint256 unlockTime;
         uint256 amountGoal;
         uint256 currentAmount;
-        bool isOpened; // Status da cápsula (aberta/fechada)
+        bool isOpened;
         mapping(uint256 => Gift) gifts;
         uint256 giftsCount;
     }
@@ -24,11 +24,10 @@ contract SavingsCapsule {
     mapping(uint256 => Capsule) public capsules;
     uint256 public capsuleCounter;
 
-    // Eventos
     event CapsuleCreated(
         uint256 capsuleId,
         address capsuleCreator,
-        address recipient,
+        address capsuleVault,
         uint256 unlockTime,
         uint256 amountGoal
     );
@@ -39,16 +38,13 @@ contract SavingsCapsule {
         capsuleCounter++;
         address capsuleCreator = msg.sender;
 
-        CapsuleRecipient newRecipient = new CapsuleRecipient(
-            capsuleCreator,
-            _unlockTime
-        );
+        CapsuleVault newVault = new CapsuleVault(capsuleCreator, _unlockTime);
 
-        address recipientAddress = address(newRecipient);
+        address vaultAddress = address(newVault);
 
         capsules[capsuleCounter].id = capsuleCounter;
         capsules[capsuleCounter].capsuleCreator = capsuleCreator;
-        capsules[capsuleCounter].recipient = recipientAddress;
+        capsules[capsuleCounter].capsuleVault = vaultAddress;
         capsules[capsuleCounter].unlockTime = _unlockTime;
         capsules[capsuleCounter].amountGoal = _amountGoal;
         capsules[capsuleCounter].currentAmount = 0;
@@ -57,7 +53,7 @@ contract SavingsCapsule {
         emit CapsuleCreated(
             capsuleCounter,
             capsuleCreator,
-            recipientAddress,
+            vaultAddress,
             _unlockTime,
             _amountGoal
         );
@@ -86,15 +82,15 @@ contract SavingsCapsule {
         capsules[_capsuleId].gifts[capsules[_capsuleId].giftsCount] = newGift;
         capsules[_capsuleId].giftsCount++;
         capsules[_capsuleId].currentAmount += msg.value;
-        payable(capsules[_capsuleId].recipient).transfer(msg.value);
+        payable(capsules[_capsuleId].capsuleVault).transfer(msg.value);
 
         emit GiftAdded(_capsuleId, msg.value);
     }
 
     function openCapsule(uint256 _capsuleId) public {
         require(
-            msg.sender == capsules[_capsuleId].recipient,
-            "Only the recipient can open the capsule"
+            msg.sender == capsules[_capsuleId].capsuleCreator,
+            "Only the cretor can open the capsule"
         );
         require(
             block.timestamp >= capsules[_capsuleId].unlockTime,
@@ -102,19 +98,15 @@ contract SavingsCapsule {
         );
         require(!capsules[_capsuleId].isOpened, "Capsule is already opened");
 
-        // Aqui, em um cenário real, usando Chainlink Functions para checar condições extratempo e pegar a chave de decriptação da mensagem e o vídeo.
-
         capsules[_capsuleId].isOpened = true;
 
-        address payable recipientPayable = payable(
-            capsules[_capsuleId].recipient
+        address payable vaultPayable = payable(
+            capsules[_capsuleId].capsuleVault
         );
-        CapsuleRecipient recipientContract = CapsuleRecipient(recipientPayable);
-        recipientContract.unlockWallet();
+        CapsuleVault vaultContract = CapsuleVault(vaultPayable);
+        vaultContract.unlockWallet();
+        vaultContract.withdrawAll();
 
-        payable(capsules[_capsuleId].capsuleCreator).transfer(
-            capsules[_capsuleId].currentAmount
-        );
         emit CapsuleOpened(_capsuleId);
     }
 

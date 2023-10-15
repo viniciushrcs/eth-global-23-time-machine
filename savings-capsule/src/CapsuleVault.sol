@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract CapsuleRecipient {
+contract CapsuleVault {
     address public admin;
     address public owner;
     bool public isLocked;
@@ -9,11 +9,6 @@ contract CapsuleRecipient {
 
     modifier onlyAdmin() {
         require(msg.sender == admin, "Not admin");
-        _;
-    }
-
-    modifier onlyOwner() {
-        require(msg.sender == owner, "Not the owner");
         _;
     }
 
@@ -35,18 +30,18 @@ contract CapsuleRecipient {
         isLocked = false;
     }
 
-    function withdrawAll() external onlyOwner {
+    function withdrawAll() external onlyAdmin {
         require(isLocked == false, "Wallet is still locked");
         uint256 balance = address(this).balance;
-        payable(msg.sender).transfer(balance);
-        emit Withdrew(msg.sender, balance);
+        payable(owner).transfer(balance);
+        emit Withdrew(owner, balance);
     }
 
-    function withdrawAmount(uint256 _amount) external onlyOwner {
+    function withdrawAmount(uint256 _amount) external onlyAdmin {
         require(isLocked == false, "Wallet is still locked");
         require(_amount <= address(this).balance, "Insufficient funds");
-        payable(msg.sender).transfer(_amount);
-        emit Withdrew(msg.sender, _amount);
+        payable(owner).transfer(_amount);
+        emit Withdrew(owner, _amount);
     }
 
     function info() external view returns (address, address, bool, uint256) {
