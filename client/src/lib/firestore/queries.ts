@@ -31,6 +31,15 @@ export async function getCapsulesByChild(childId: string) {
   return querySnapshot.data();
 }
 
+export async function getAllCapsules() {
+  const querySnapshot = await getDocs(capsuleRef);
+  const capsules = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  return capsules;
+}
+
 export async function getCapsulesByParentAddress(parentAddress: string) {
   const q = query(capsuleRef, where('creatorAddress', '==', parentAddress));
   const querySnapshot = (await getDocs(q)).docs;

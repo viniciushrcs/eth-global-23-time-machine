@@ -28,12 +28,31 @@ export async function giveGift(
   signer: Signer,
   _capsuleId: number,
   _videoIPFSHash: string,
+  _amount: number,
 ) {
   const contract = getSavingsCapsuleContract(signer);
-  const tx = await contract.addGift(_capsuleId, _videoIPFSHash);
+  const tx = await contract.addGift(_capsuleId, _videoIPFSHash, {
+    value: ethers.BigNumber.from(_amount),
+  });
   const receipt = await tx.wait();
   console.log(receipt);
   return receipt;
+}
+
+export async function getGifts(signer: Signer, _capsuleId: number) {
+  const contract = getSavingsCapsuleContract(signer);
+  const tx = await contract.getGiftsCount(_capsuleId);
+  const count = await tx.toNumber();
+  const gifts = [];
+  for (let i = 0; i < count; i++) {
+    const gift = await contract.getGift(_capsuleId, i);
+    const giftData = {
+      gifter: gift.gifter,
+      videoIPFSHash: gift.videoIPFSHash,
+    };
+    gifts.push(giftData);
+  }
+  return gifts;
 }
 
 export async function openCapsule(signer: Signer, _capsuleId: number) {

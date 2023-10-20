@@ -14,10 +14,7 @@ export async function storeVideoOnIpfs({
   const metadata = await client.store({
     name,
     description,
-    image: new File([file], 'image.png', { type: 'image/png' }),
+    image: new File([file], 'video.mp4', { type: 'video/mp4' }),
   });
-
-  console.log('NFT data stored!');
-  console.log('Metadata URI: ', metadata.url);
-  return metadata.data.image.hash;
+  return metadata.data.image.pathname;
 }

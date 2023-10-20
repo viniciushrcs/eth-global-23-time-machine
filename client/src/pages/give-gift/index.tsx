@@ -4,7 +4,10 @@ import {
   createCapsule as createBlockchainCapsule,
   giveGift,
 } from '@/lib/ethers/ethers';
-import { createCapsule as createFirebaseCapsule } from '@/lib/firestore/queries';
+import {
+  createCapsule as createFirebaseCapsule,
+  getAllCapsules,
+} from '@/lib/firestore/queries';
 import ConnectWalltetError from '@/components/error/connect-wallet';
 import { Icons } from '@/components/ui/icons';
 import { useDropzone } from 'react-dropzone';
@@ -74,25 +77,29 @@ const VideoDropzone = ({
   );
 };
 
-const GiftsPage = () => {
+const GiftsPage = ({ capsules }) => {
   const address = useAddress();
   const [amount, setAmount] = useState(0);
-  const [capsuleName, setCapsuleName] = useState('');
   const [capsuleId, setCapsuleId] = useState(0);
   const [uploadedVideo, setUploadedVideo] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const signer = useSigner();
+
+  const handleCapsuleChange = (e) => {
+    const selectedCapsuleId = e.target.value;
+    setCapsuleId(selectedCapsuleId);
+  };
 
   const handleSubmit = async () => {
     if (signer && uploadedVideo) {
       try {
         setIsLoading(true);
         const videoIpfsHash = await storeVideoOnIpfs({
-          name: capsuleName,
-          description: capsuleName,
+          name: capsuleId.toString(),
+          description: capsuleId.toString(),
           file: uploadedVideo,
         });
-        await giveGift(signer, capsuleId, videoIpfsHash);
+        await giveGift(signer, capsuleId, videoIpfsHash, amount);
       } catch (e) {
         console.log('Error adding gift', e);
       } finally {
@@ -119,16 +126,21 @@ const GiftsPage = () => {
               className="block text-gray-700 text-sm font-bold mb-2"
               htmlFor="unlockTime"
             >
-              Name
+              Select the Capsule you want to contribute to
             </label>
-            <input
+            <select
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="capsuleName"
-              type="text"
-              placeholder="Enter a descriptive name"
-              value={capsuleName}
-              onChange={(e) => setCapsuleName(e.target.value)}
-            />
+              id="capsuleSelect"
+              value={capsuleId}
+              onChange={handleCapsuleChange}
+            >
+              <option value="">Select the Capsule</option>
+              {capsules?.map((capsule) => (
+                <option key={capsule.blockchainId} value={capsule.blockchainId}>
+                  {capsule.name}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="mb-4">
             <label
@@ -167,10 +179,10 @@ const GiftsPage = () => {
               {isLoading ? (
                 <div className="flex">
                   <Icons.spinner className="mr-2 animate-spin" />
-                  Creating...
+                  Putting your gift in capsule...
                 </div>
               ) : (
-                'Create New Capsule'
+                'Give Gift'
               )}
             </button>
           </div>
@@ -181,3 +193,13 @@ const GiftsPage = () => {
 };
 
 export default GiftsPage;
+
+export async function getStaticProps() {
+  const capsules = await getAllCapsules();
+
+  return {
+    props: {
+      capsules,
+    },
+  };
+}

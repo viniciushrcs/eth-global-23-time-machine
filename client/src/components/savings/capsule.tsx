@@ -8,27 +8,34 @@ import {
 } from '../ui/card';
 import { Button } from '../ui/button';
 import { useSigner } from '@thirdweb-dev/react';
-import { openCapsule } from '@/lib/ethers/ethers';
+import { getGifts, openCapsule } from '@/lib/ethers/ethers';
+import { Separator } from '../ui/separator';
+import GiftsModal from './gifts';
 
 interface CapsuleProps {
   name: string;
   description: string;
-  targetAmount: number;
+  amountGoal: number;
   capsuleId: number;
 }
 
 const CapsuleCard: React.FC<CapsuleProps> = ({
   name,
   description,
-  targetAmount,
+  amountGoal,
   capsuleId,
 }) => {
   const signer = useSigner();
+  const [gifts, setGifts] = React.useState<any[]>([]);
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
 
   const handleOpenCapsule = async () => {
     if (signer) {
       try {
         await openCapsule(signer, capsuleId);
+        const gifts = await getGifts(signer, capsuleId);
+        setGifts(gifts);
+        setIsModalOpen(true);
       } catch (error) {
         console.error('Error opening capsule:', error);
       }
@@ -38,16 +45,25 @@ const CapsuleCard: React.FC<CapsuleProps> = ({
   };
 
   return (
-    <Card className="flex flex-col p-10 w-[400px] gap-y-3">
-      <CardTitle>Saving: {name}</CardTitle>
-      <CardDescription>Description: {description}</CardDescription>
-      <CardContent>
-        <p>Target Amount: {targetAmount}</p>
-      </CardContent>
-      <CardFooter>
-        <Button onClick={handleOpenCapsule}>Open Capsule</Button>
-      </CardFooter>
-    </Card>
+    <>
+      <Card className="flex flex-col p-10 w-[300px] h-[250px] gap-y-3">
+        <CardTitle>{name.toLocaleUpperCase()}</CardTitle>
+        <CardDescription>Description: {description}</CardDescription>
+        <CardContent>
+          <p>Target Amount: {amountGoal} WEI</p>
+          <p>Current Amount: {amountGoal} WEI</p>
+        </CardContent>
+        <Separator className="border-2" />
+        <CardFooter>
+          <Button onClick={handleOpenCapsule}>Open Capsule</Button>
+        </CardFooter>
+      </Card>
+      <GiftsModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        gifts={gifts}
+      />
+    </>
   );
 };
 

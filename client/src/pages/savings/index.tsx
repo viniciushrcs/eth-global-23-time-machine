@@ -12,7 +12,6 @@ const MySavings = () => {
     if (address) {
       const fetchCapsules = async () => {
         const allCapsules = await getCapsulesByParentAddress(address);
-        console.log(capsules);
         setCapsules(allCapsules);
       };
       fetchCapsules();
@@ -21,15 +20,15 @@ const MySavings = () => {
 
   return (
     <div className="w-full mt-12 p-4">
-      <h1 className="text-4xl font-semibold">My Savings</h1>
-      <div className="mt-8">
+      <h1 className="text-4xl text-center font-semibold">My Savings</h1>
+      <div className="mt-8 flex gap-6">
         {capsules.map((capsule) => (
           <CapsuleCard
-            key={capsule.id}
+            key={capsule.blockchainId}
             capsuleId={capsule.blockchainId}
             name={capsule.name}
             description={capsule.description}
-            targetAmount={capsule.targetAmount}
+            amountGoal={capsule.amountGoal}
           />
         ))}
       </div>
